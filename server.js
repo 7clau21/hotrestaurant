@@ -16,23 +16,9 @@ app.use(bodyParser.json());
 // // Reservation Tables (DATA)
 // // =============================================================
 var reservations = [
-  {
-    routeName: "reservations",
-    name: "",
-    email: "",
-    phoneNumber: "",
-    uniqueId: "" ,
-  },
 ];
 
 var waitlist = [
-  {
-    routeName: "tables",
-    name: "",
-    email: "",
-    phoneNumber: "",
-    uniqueId: "" ,
-  },
 ];
 // // Routes
 // // =============================================================
@@ -42,7 +28,7 @@ var waitlist = [
  res.sendFile(path.join(__dirname, "homepage.html"));
  });
 
- app.get("/tables", function(req, res) {
+ app.get("/viewtables", function(req, res) {
 res.sendFile(path.join(__dirname, "viewtables.html"));
  });
 
@@ -55,53 +41,70 @@ app.get("/all", function(req, res) {
 res.json(reservations);
  });
 
- // Search for reservations (all current and waitlist) - provides JSON
-app.get("/api/:reservations?", function(req, res) {
-   var chosen = req.params.reservations;
-
-   if (chosen) {
-     console.log(chosen);
-
-     for (var i = 0; i < reservations.length; i++) {
-       if (chosen === reservations[i].routeName) {
-         return res.json(reservations[i]);
-       }
-     }
-     return res.json(false);
-   }
-   return res.json(reservations);
+ app.get("/api/waitlist", function(req, res) {
+  return res.json(waitlist);
  });
 
- app.get("/api/:waitlist?", function(req, res) {
-  var wait = req.params.waitlist;
+ app.get("/api/tables", function(req, res) {
+  return res.json(reservations);
+ });
 
-  if (wait) {
-    console.log(wait);
+  //    var chosen = req.params.reservations;
+ // Search for reservations (all current and waitlist) - provides JSON
+// app.get("/api/:reservations?", function(req, res) {
+//    var chosen = req.params.reservations;
 
-    for (var i = 0; i < waitlist.length; i++) {
-      if (wait === waitlist[i].routeName) {
-        return res.json(waitlist[i]);
-      }
-    }
-    return res.json(false);
-  }
-  return res.json(waitlist);
-});
+//    if (chosen) {
+//      console.log(chosen);
+
+//      for (var i = 0; i < reservations.length; i++) {
+//        if (chosen === reservations[i].routeName) {
+//          return res.json(reservations[i]);
+//        }
+//      }
+//      return res.json(false);
+//    }
+//    return res.json(reservations);
+//  });
+
+//  app.get("/api/:waitlist?", function(req, res) {
+//   var wait = req.params.waitlist;
+
+//   if (wait) {
+//     console.log(wait);
+
+//     for (var i = 0; i < waitlist.length; i++) {
+//       if (wait === waitlist[i].routeName) {
+//         return res.json(waitlist[i]);
+//       }
+//     }
+//     return res.json(false);
+//   }
+//   return res.json(waitlist);
+// });
 
 // Create New Reservation - takes in JSON input
  app.post("/api/new", function(req, res) {
    // req.body hosts is equal to the JSON post sent from the user
    // This works because of our body-parser middleware
    var newReservation = req.body;
+   var newWaitlist = req.body;
    // Using a RegEx Pattern to remove spaces from newReservation
    // You can read more about RegEx Patterns later https://www.regexbuddy.com/regex.html
    newReservation.routeName = newReservation.name.replace(/\s+/g, "").toLowerCase();
-
+   newWaitlist.routeName = newWaitlist.name.replace(/\s+/g, "").toLowerCase();
    console.log(newReservation);
+   console.log(newWaitlist);
 
    reservations.push(newReservation);
-
-   res.json(newReservation);
+   if (reservations.length < 5) {
+    res.json(newReservation);
+   }
+else {
+  reservations.push(newWaitlist);
+  res.json(newWaitlist);
+}
+   
  });
 
 // Starts the server to begin listening
